@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/Src/" />
+  <Folder Name="/Src/Services/" />
+  <Folder Name="/Src/Services/BasketService/">
+    <Project Path="BasketService.API/BasketService.API.csproj" Id="c281b42a-fde9-469a-a9ed-1162911a6560" />
+    <Project Path="BasketService.Application/BasketService.Application.csproj" Id="ea06e161-34c3-404f-b601-bf87a458bb71" />
+    <Project Path="BasketService.Domain/BasketService.Domain.csproj" Id="393ec6d3-2ff7-49dc-b490-e6bae8134378" />
+    <Project Path="BasketService.Infrastructure/BasketService.Infrastructure.csproj" Id="2d839690-695f-4c39-8a16-853825464524" />
+  </Folder>
+  <Folder Name="/Src/Services/ProductService/">
+    <Project Path="D:/source/Programming/MicroService/MicroShop/ProductService.API/ProductService.API.csproj" />
+    <Project Path="D:/source/Programming/MicroService/MicroShop/ProductService.Application/ProductService.Application.csproj" />
+    <Project Path="D:/source/Programming/MicroService/MicroShop/ProductService.Domain/ProductService.Domain.csproj" />
+    <Project Path="D:/source/Programming/MicroService/MicroShop/ProductService.Infrastructure/ProductService.Infrastructure.csproj" />
+  </Folder>
+</Solution>

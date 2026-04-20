@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace BasketService.Domain.Entities
+{
+    public class Basket
+    {
+        public Basket(string UserId)
+        {
+            this.UserId = UserId;
+        }
+        public Basket()
+        {
+        }
+        public Guid Id { get; set; }
+        public string UserId { get; private set; }
+        public List<BasketItem> Items { get; set; } = new List<BasketItem>();
+    }
+}
