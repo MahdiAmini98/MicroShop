@@ -1,11 +1,26 @@
 <Solution>
   <Folder Name="/Src/" />
+  <Folder Name="/Src/Presentation/">
+    <Project Path="MicroShop.Web.Mvc/MicroShop.Web.Mvc.csproj" Id="e9707d3c-3618-48c7-88a3-2a86ca5e9b94" />
+  </Folder>
   <Folder Name="/Src/Services/" />
   <Folder Name="/Src/Services/BasketService/">
     <Project Path="BasketService.API/BasketService.API.csproj" Id="c281b42a-fde9-469a-a9ed-1162911a6560" />
     <Project Path="BasketService.Application/BasketService.Application.csproj" Id="ea06e161-34c3-404f-b601-bf87a458bb71" />
     <Project Path="BasketService.Domain/BasketService.Domain.csproj" Id="393ec6d3-2ff7-49dc-b490-e6bae8134378" />
     <Project Path="BasketService.Infrastructure/BasketService.Infrastructure.csproj" Id="2d839690-695f-4c39-8a16-853825464524" />
+  </Folder>
+  <Folder Name="/Src/Services/DiscountService/">
+    <Project Path="DiscountService.API/DiscountService.API.csproj" Id="743a055e-0643-42ce-aee8-16675c8b6215" />
+    <Project Path="DiscountService.Application/DiscountService.Application.csproj" Id="b7a38671-c374-4e4f-8b64-9e44941e44da" />
+    <Project Path="DiscountService.Domain/DiscountService.Domain.csproj" Id="92d5b7c7-5fd3-4b1b-b2f0-55f170ac941e" />
+    <Project Path="DiscountService.Infrastructure/DiscountService.Infrastructure.csproj" Id="f699341e-ef4b-4ddd-8e93-4807f334b5cb" />
+  </Folder>
+  <Folder Name="/Src/Services/OrderService/">
+    <Project Path="OrderService.API/OrderService.API.csproj" Id="92aa484f-2768-47b8-81ef-9edafc1b3b6e" />
+    <Project Path="OrderService.Application/OrderService.Application.csproj" Id="2b16d4a4-480e-4fb7-9c07-3fba2307a459" />
+    <Project Path="OrderService.Domain/OrderService.Domain.csproj" Id="e790fb4d-b223-40a7-9b5f-7c48474aa964" />
+    <Project Path="OrderService.Infrastructure/OrderService.Infrastructure.csproj" Id="807e69c7-3e91-4a29-a4eb-66079be69058" />
   </Folder>
   <Folder Name="/Src/Services/ProductService/">
     <Project Path="D:/source/Programming/MicroService/MicroShop/ProductService.API/ProductService.API.csproj" />
