@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace DiscountService.Domain.Entities
+{
+    public class DiscountCode
+    {
+        public Guid Id { get; set; }
+        public int Amount { get; set; }
+        public string Code { get; set; }
+        public bool Used { get; set; }
+    }
+}
