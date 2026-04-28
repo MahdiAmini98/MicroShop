@@ -38,7 +38,17 @@ namespace DiscountService.Application.Services
             var discountCode = context.DiscountCodes.SingleOrDefault(p => p.Code.Equals(Code));
 
             if (discountCode == null)
-                throw new Exception("Discouint Not Found....");
+                return null;
+            var result = mapper.Map<DiscountDto>(discountCode);
+            return result;
+        }
+
+        public DiscountDto GetDiscountById(Guid Id)
+        {
+            var discountCode = context.DiscountCodes.SingleOrDefault(p => p.Id == Id);
+
+            if (discountCode == null)
+                return null;
             var result = mapper.Map<DiscountDto>(discountCode);
             return result;
         }

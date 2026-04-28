@@ -8,6 +8,7 @@ namespace BasketService.Application.Dtos
     {
         public Guid Id { get; set; }
         public string UserId { get; set; }
+        public Guid? DiscountId { get; set; }
         public List<BasketItemDto> Items { get; set; } = new List<BasketItemDto>();
         public int Total()
         {
@@ -18,5 +19,6 @@ namespace BasketService.Application.Dtos
             }
             return 0;
         }
+
     }
 }

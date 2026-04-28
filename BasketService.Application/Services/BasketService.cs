@@ -33,6 +33,15 @@ namespace BasketService.Application.Services
             context.SaveChanges();
         }
 
+        public void ApplyDiscountToBasket(Guid BasketId, Guid DiscountId)
+        {
+            var basket = context.Baskets.Find(BasketId);
+            if (basket == null)
+                throw new Exception("Basket not found....!");
+            basket.DiscountId = DiscountId;
+            context.SaveChanges();
+        }
+
         public BasketDto GetBasket(string UserId)
         {
             var basket = context.Baskets
@@ -74,6 +83,7 @@ namespace BasketService.Application.Services
             {
                 Id = basket.Id,
                 UserId = basket.UserId,
+                DiscountId = basket.DiscountId,
                 Items = basket.Items.Select(item => new BasketItemDto
                 {
                     ProductId = item.ProductId,
@@ -93,7 +103,6 @@ namespace BasketService.Application.Services
                 throw new Exception("BasketItem Not Found...!");
             context.BasketItems.Remove(item);
             context.SaveChanges();
-
         }
 
         public void SetQuantities(Guid itemId, int quantity)
@@ -143,6 +152,5 @@ namespace BasketService.Application.Services
                 Id = basket.Id,
             };
         }
-
     }
 }

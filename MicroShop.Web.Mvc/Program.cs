@@ -1,12 +1,15 @@
 using MicroShop.Web.Mvc.Services.BasketServices;
+using MicroShop.Web.Mvc.Services.DiscountService;
 using MicroShop.Web.Mvc.Services.ProductServices;
 using RestSharp;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
-
+var mvcService = builder.Services.AddControllersWithViews();
+if (builder.Environment.IsDevelopment())
+    mvcService.AddRazorRuntimeCompilation();
 
 builder.Services.AddScoped<IProductService>(p =>
 {
@@ -19,6 +22,10 @@ builder.Services.AddScoped<IBasketService>(p =>
     return new BasketService(
         new RestClient(builder.Configuration.GetSection("MicroservicAddress:Basket:Uri").Value!));
 });
+
+
+builder.Services.AddScoped<IDiscountService, MicroShop.Web.Mvc.Services.DiscountService.DiscountService>();
+
 
 var app = builder.Build();
 

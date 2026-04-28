@@ -10,6 +10,8 @@ namespace MicroShop.Web.Mvc.Services.BasketServices
         ResultDto AddToBasket(AddToBasketDto addToBasket, string UserId);
         ResultDto DeleteFromBasket(Guid Id);
         ResultDto UpdateQuantity(Guid BasketItemId, int quantity);
+        ResultDto ApplyDiscountToBasket(Guid basketId, Guid discountId);
+
     }
     public class BasketService : IBasketService
     {
@@ -71,17 +73,39 @@ namespace MicroShop.Web.Mvc.Services.BasketServices
             IRestResponse response = restClient.Execute(request);
             return GetResponseStatusCode(response);
         }
+
+        public ResultDto ApplyDiscountToBasket(Guid basketId, Guid discountId)
+        {
+            //https://localhost:6001/api/Basket/7d9df6bc-8e91-476f-c28d-08d983442ffa/9d9df6bc-8e91-476f-c28d-08d983442ffa
+
+            var request = new RestRequest($"/api/Basket/{basketId}/{discountId}", Method.PUT);
+            IRestResponse response = restClient.Execute(request);
+            return GetResponseStatusCode(response);
+
+        }
     }
 
     public class BasketDto
     {
         public string id { get; set; }
         public string userId { get; set; }
+        public Guid? discountId { get; set; }
+        public DiscountInBasketDto DiscountDetail { get; set; } = null;
+
         public List<BasketItem> items { get; set; }
         public int TotalPrice()
         {
-            return items.Sum(p => p.unitPrice * p.quantity);
+            int result = items.Sum(p => p.unitPrice * p.quantity);
+            if (discountId.HasValue)
+                result = result - DiscountDetail.Amount;
+            return result;
         }
+    }
+
+    public class DiscountInBasketDto
+    {
+        public int Amount { get; set; }
+        public string DiscountCode { get; set; }
     }
     public class BasketItem
     {

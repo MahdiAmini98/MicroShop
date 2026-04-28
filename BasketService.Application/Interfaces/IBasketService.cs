@@ -13,6 +13,7 @@ namespace BasketService.Application.Interfaces
         void RemoveItemFromBasket(Guid ItemId);
         void SetQuantities(Guid itemId, int quantity);
         void TransferBasket(string anonymousId, string UserId);
+        void ApplyDiscountToBasket(Guid BasketId, Guid DiscountId);
 
     }
 }

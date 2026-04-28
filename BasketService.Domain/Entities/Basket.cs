@@ -15,6 +15,7 @@ namespace BasketService.Domain.Entities
         }
         public Guid Id { get; set; }
         public string UserId { get; private set; }
+        public Guid? DiscountId { get; set; }
         public List<BasketItem> Items { get; set; } = new List<BasketItem>();
     }
 }

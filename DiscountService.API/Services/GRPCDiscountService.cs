@@ -12,18 +12,65 @@ namespace DiscountService.API.Services
         {
             this.discountService = discountService;
         }
+
         public override Task<ResultGetDiscountByCode> GetDiscountByCode(RequestGetDiscountByCode request, ServerCallContext context)
         {
             var data = discountService.GetDiscountByCode(request.Code);
+
+            if (data == null)
+            {
+                return Task.FromResult(new ResultGetDiscountByCode
+                {
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "کد تخفیف وارد شده یافت نشد",
+                });
+            }
+
             return Task.FromResult(new ResultGetDiscountByCode
             {
-                Amount = data.Amount,
-                Code = data.Code,
-                Id = data.Id.ToString(),
-                Used = data.Used,
+                IsSuccess = true,
+                Message = "اطلاعات تخفیف",
+                Data = new DiscountInfo
+                {
+                    Amount = data.Amount,
+                    Code = data.Code,
+                    Id = data.Id.ToString(),
+                    Used = data.Used,
+                }
+
             });
         }
 
+
+        public override Task<ResultGetDiscountByCode> GetDiscountById(RequestGetDiscountById request, ServerCallContext context)
+        {
+            var data = discountService.GetDiscountById(Guid.Parse(request.Id));
+
+            if (data == null)
+            {
+                return Task.FromResult(new ResultGetDiscountByCode
+                {
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "کد تخفیف وارد شده یافت نشد",
+                });
+            }
+
+            return Task.FromResult(new ResultGetDiscountByCode
+            {
+                IsSuccess = true,
+                Message = "اطلاعات تخفیف",
+                Data = new DiscountInfo
+                {
+                    Amount = data.Amount,
+                    Code = data.Code,
+                    Id = data.Id.ToString(),
+                    Used = data.Used,
+                }
+
+            });
+        }
         public override Task<ResultUseDiscount> UseDiscount(RequestUseDiscount request, ServerCallContext context)
         {
             var result = discountService.UseDiscount(Guid.Parse(request.Id));
