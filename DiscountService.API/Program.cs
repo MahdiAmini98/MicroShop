@@ -20,6 +20,7 @@ builder.Services.AddTransient<IDiscountService, DiscountService.Application.Serv
 
 #region AutoMapper
 builder.Services.AddAutoMapper(typeof(DiscountMappingProfile));
+
 #endregion
 
 var app = builder.Build();

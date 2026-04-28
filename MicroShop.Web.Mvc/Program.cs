@@ -1,3 +1,4 @@
+using MicroShop.Web.Mvc.Services.BasketServices;
 using MicroShop.Web.Mvc.Services.ProductServices;
 using RestSharp;
 
@@ -11,6 +12,12 @@ builder.Services.AddScoped<IProductService>(p =>
 {
     return new ProductService(
         new RestClient(builder.Configuration.GetSection("MicroservicAddress:Product:Uri").Value!));
+});
+
+builder.Services.AddScoped<IBasketService>(p =>
+{
+    return new BasketService(
+        new RestClient(builder.Configuration.GetSection("MicroservicAddress:Basket:Uri").Value!));
 });
 
 var app = builder.Build();

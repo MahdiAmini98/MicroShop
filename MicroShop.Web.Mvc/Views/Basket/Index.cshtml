@@ -1,0 +1,106 @@
+﻿@using MicroShop.Web.Mvc.Services.BasketServices
+@model BasketDto
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>سبد خرید</h1>
+
+
+<table class="table">
+    <thead>
+        <tr>
+
+            <th>
+                <label asp-for="items.FirstOrDefault().productName"></label>
+            </th>
+            <th>
+                <label asp-for="items.FirstOrDefault().unitPrice"></label>
+            </th>
+            <th>
+                <label asp-for="items.FirstOrDefault().quantity"></label>
+            </th>
+            <th>
+                <label>قیمت کل</label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.items)
+        {
+            <tr>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.productName)
+                </td>
+                <td>
+                    <b class="text-success">@item.unitPrice.ToString("n0")  تومان</b>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.quantity)
+                </td>
+                <td>
+                    <b class="text-success">@item.TotalPrice().ToString("n0")  تومان</b>
+                </td>
+                <td class="row">
+                    <a class="btn btn-danger" asp-action="Delete" asp-controller="Basket" asp-route-id="@item.id"> حذف</a>
+                    <a class="btn btn-warning" onclick="ShowEdit('@item.id','@item.quantity')">ویزایش تعداد</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr class="bg-dark text-white">
+
+            <td>
+                قیمت کل
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+                <b>@Model.TotalPrice().ToString("n0")  تومان</b>
+            </td>
+            <td>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="editQuantityModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="Edit" asp-controller="Basket">
+                <div class="modal-body">
+                    <input type="hidden" id="BasketItemId" name="BasketItemId" value="" />
+                    <input type="number" id="quantity" name="quantity" value="" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">برگشت</button>
+                    <button type="submit" class="btn btn-primary">ثبت تغییرات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function ShowEdit(BasketItemId, quantity) {
+        $("#BasketItemId").val(BasketItemId);
+        $("#quantity").val(quantity);
+        $("#editQuantityModal").modal({
+            fadeDuration: 400,
+            fadeDelay: 0.10
+        });
+    }
+</script>
