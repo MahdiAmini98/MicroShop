@@ -7,8 +7,7 @@ namespace OrderService.Application.Interfaces
 {
     public interface IOrderService
     {
-        void AddOrder(AddOrderDto addOrder);
         List<OrderDto> GetOrdersForUser(string UserId);
-        OrderDto GetOrderById(Guid Id);
+        OrderDetailDto GetOrderById(Guid Id);
     }
 }

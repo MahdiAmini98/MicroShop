@@ -14,72 +14,53 @@ namespace OrderService.Application.Services
         {
             this.context = context;
         }
-        public void AddOrder(AddOrderDto addOrder)
-        {
-            List<OrderLine> orderLines = new List<OrderLine>();
-            foreach (var item in addOrder.OrderLines)
-            {
-                orderLines.Add(new OrderLine
-                {
-                    ProductId = item.ProductId,
-                    ProductName = item.ProductName,
-                    ProductPrice = item.ProductPrice,
-                    Quantity = item.Quantity,
-                });
-                Order order = new Order(addOrder.UserId, orderLines);
-                context.Orders.Add(order);
-                context.SaveChanges();
 
-            }
-        }
-
-        public OrderDto GetOrderById(Guid Id)
+        public OrderDetailDto GetOrderById(Guid Id)
         {
             var orders = context.Orders.
-             Include(p => p.OrderLines)
-             .FirstOrDefault(p => p.Id == Id);
+                   Include(p => p.OrderLines)
+                  .ThenInclude(p => p.Product)
+                 .FirstOrDefault(p => p.Id == Id);
 
             if (orders == null)
                 throw new Exception("Order Not Found");
-
-            var result = new OrderDto
+            var result = new OrderDetailDto
             {
                 Id = orders.Id,
+                Address = orders.Address,
+                FirstName = orders.FirstName,
+                LastName = orders.LastName,
+                PhoneNumber = orders.PhoneNumber,
+                UserId = orders.UserId,
                 OrderPaid = orders.OrderPaid,
                 OrderPlaced = orders.OrderPlaced,
-                UserId = orders.UserId,
-                OrderLines = orders.OrderLines.Select(o => new OrderLineDto
+                OrderLines = orders.OrderLines.Select(ol => new OrderLineDto
                 {
-                    Id = o.Id,
-                    ProductId = o.ProductId,
-                    ProductName = o.ProductName,
-                    ProductPrice = o.ProductPrice,
-                    Quantity = o.Quantity,
+                    Id = ol.Id,
+                    Name = ol.Product.Name,
+                    Price = ol.Product.Price,
+                    Quantity = ol.Quantity,
+
                 }).ToList(),
+
             };
             return result;
+
         }
 
         public List<OrderDto> GetOrdersForUser(string UserId)
         {
             var orders = context.Orders.
-              Include(p => p.OrderLines)
-             .Where(p => p.UserId == UserId)
-             .Select(p => new OrderDto
-             {
-                 Id = p.Id,
-                 OrderPaid = p.OrderPaid,
-                 OrderPlaced = p.OrderPlaced,
-                 UserId = p.UserId,
-                 OrderLines = p.OrderLines.Select(o => new OrderLineDto
-                 {
-                     Id = o.Id,
-                     ProductId = o.ProductId,
-                     ProductName = o.ProductName,
-                     ProductPrice = o.ProductPrice,
-                     Quantity = o.Quantity,
-                 }).ToList(),
-             }).ToList();
+             Include(p => p.OrderLines)
+            .Where(p => p.UserId == UserId)
+            .Select(p => new OrderDto
+            {
+                Id = p.Id,
+                OrderPaid = p.OrderPaid,
+                OrderPlaced = p.OrderPlaced,
+                ItemCount = p.OrderLines.Count(),
+                TotalPrice = p.TotalPrice,
+            }).ToList();
             return orders;
         }
     }
