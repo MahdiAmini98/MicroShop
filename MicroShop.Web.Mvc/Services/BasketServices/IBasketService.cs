@@ -11,7 +11,7 @@ namespace MicroShop.Web.Mvc.Services.BasketServices
         ResultDto DeleteFromBasket(Guid Id);
         ResultDto UpdateQuantity(Guid BasketItemId, int quantity);
         ResultDto ApplyDiscountToBasket(Guid basketId, Guid discountId);
-
+        ResultDto Checkout(CheckoutDto checkout);
     }
     public class BasketService : IBasketService
     {
@@ -83,6 +83,17 @@ namespace MicroShop.Web.Mvc.Services.BasketServices
             return GetResponseStatusCode(response);
 
         }
+
+        public ResultDto Checkout(CheckoutDto checkout)
+        {
+            var request = new RestRequest($"/api/Basket/CheckoutBasket", Method.POST);
+            request.AddHeader("Content-Type", "application/json");
+            string serializeModel = JsonSerializer.Serialize(checkout);
+            request.AddParameter("application/json", serializeModel, ParameterType.RequestBody);
+            IRestResponse response = restClient.Execute(request);
+            return GetResponseStatusCode(response);
+
+        }
     }
 
     public class BasketDto
@@ -129,5 +140,16 @@ namespace MicroShop.Web.Mvc.Services.BasketServices
         public int UnitPrice { get; set; }
         public int Quantity { get; set; }
         public string ImageUrl { get; set; }
+    }
+
+    public class CheckoutDto
+    {
+        public Guid BasketId { get; set; }
+        public string UserId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Address { get; set; }
+        public string PostalCode { get; set; }
     }
 }

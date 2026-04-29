@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Index";
 }
-
 <h1>سبد خرید</h1>
 
 <div class="row text-right">
@@ -91,6 +90,10 @@
     </div>
 </div>
 
+
+<br />
+<a asp-action="Checkout" asp-controller="Basket" class="btn btn-success  col-md-12">ثبت سفارش</a>
+
 <!-- Modal -->
 <div class="modal fade" id="editQuantityModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -166,4 +169,5 @@
 
     </script>
 }
+
 

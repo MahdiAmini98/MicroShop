@@ -52,5 +52,16 @@ namespace BasketService.API.Controllers
             basketService.ApplyDiscountToBasket(basketId, discountId);
             return Accepted();
         }
+
+        [HttpPost("CheckoutBasket")]
+        public IActionResult CheckoutBasket(CheckoutBasketDto checkoutBasket,
+            [FromServices] IDiscountService discountService)
+        {
+            var result = basketService.CheckoutBasket(checkoutBasket, discountService);
+            if (result.IsSuccess)
+                return Ok(result);
+            else
+                return StatusCode(500, result);
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BasketService.Application.Dtos;
+using Common.Core.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,6 +15,7 @@ namespace BasketService.Application.Interfaces
         void SetQuantities(Guid itemId, int quantity);
         void TransferBasket(string anonymousId, string UserId);
         void ApplyDiscountToBasket(Guid BasketId, Guid DiscountId);
+        ResultDto CheckoutBasket(CheckoutBasketDto checkoutBasket, IDiscountService discountService);
 
     }
 }

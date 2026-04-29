@@ -107,5 +107,31 @@ namespace MicroShop.Web.Mvc.Controllers
                 });
             }
         }
+
+        [HttpGet]
+        public IActionResult Checkout()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Checkout(CheckoutDto checkout)
+        {
+            checkout.UserId = UserId;
+            checkout.BasketId = Guid.Parse(basketService.GetBasket(UserId).id);
+            var result = basketService.Checkout(checkout);
+            if (result.IsSuccess)
+                return RedirectToAction("OrderCreated");
+            else
+            {
+                //افزودن پیام
+                return View(checkout);
+            }
+        }
+
+        public IActionResult OrderCreated()
+        {
+            return View();
+        }
     }
 }
