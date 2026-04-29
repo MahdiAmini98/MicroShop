@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DiscountService.Application.Dtos
+namespace Common.Core.Dtos
 {
     public class DiscountDto
     {

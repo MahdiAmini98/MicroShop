@@ -1,7 +1,4 @@
-﻿using DiscountService.Application.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Common.Core.Dtos;
 
 namespace DiscountService.Application.Interfaces
 {

@@ -1,4 +1,4 @@
-﻿namespace MicroShop.Web.Mvc.Models.Dtos
+﻿namespace Common.Core.Dtos
 {
     public class ResultDto
     {

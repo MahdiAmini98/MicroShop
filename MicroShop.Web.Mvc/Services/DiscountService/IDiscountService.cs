@@ -1,6 +1,6 @@
-﻿using DiscountService.API.Protos;
+﻿using Common.Core.Dtos;
+using DiscountService.API.Protos;
 using Grpc.Net.Client;
-using MicroShop.Web.Mvc.Models.Dtos;
 
 namespace MicroShop.Web.Mvc.Services.DiscountService
 {

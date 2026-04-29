@@ -1,4 +1,4 @@
-﻿using MicroShop.Web.Mvc.Models.Dtos;
+﻿using Common.Core.Dtos;
 using MicroShop.Web.Mvc.Services.BasketServices;
 using MicroShop.Web.Mvc.Services.DiscountService;
 using MicroShop.Web.Mvc.Services.ProductServices;

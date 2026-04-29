@@ -1,6 +1,8 @@
 using BasketService.Application.Interfaces;
 using BasketService.Application.MappingProfile;
+using BasketService.Domain.Repository;
 using BasketService.Infrastructure.Context;
+using BasketService.Infrastructure.gRPC;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 
@@ -14,8 +16,14 @@ var connectionString = builder.Configuration.GetConnectionString("BasketConnecti
 builder.Services.AddDbContext<BasketDataBaseContext>(p => p.UseSqlServer(connectionString));
 #endregion
 
+#region Repository
+builder.Services.AddTransient<IDiscountRepository, DiscountGrpcClient>();
+
+#endregion
 #region Services
 builder.Services.AddTransient<IBasketService, BasketService.Application.Services.BasketService>();
+builder.Services.AddTransient<IDiscountService, BasketService.Application.Services.DiscountService>();
+
 #endregion
 
 #region AutoMapper

@@ -1,4 +1,4 @@
-﻿using MicroShop.Web.Mvc.Models.Dtos;
+﻿using Common.Core.Dtos;
 using RestSharp;
 using System.Text.Json;
 

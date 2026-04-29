@@ -12,6 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Common.Core\Common.Core.csproj" />
 	  <ProjectReference Include="..\DiscountService.Infrastructure\DiscountService.Infrastructure.csproj" />
 	</ItemGroup>
 </Project>

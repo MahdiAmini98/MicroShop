@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DiscountService.Application.Dtos;
+using Common.Core.Dtos;
 using DiscountService.Application.Interfaces;
 using DiscountService.Domain.Entities;
 using DiscountService.Infrastructure.Context;

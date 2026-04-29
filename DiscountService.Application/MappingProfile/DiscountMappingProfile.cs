@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DiscountService.Application.Dtos;
+using Common.Core.Dtos;
 using DiscountService.Domain.Entities;
 
 namespace DiscountService.Application.MappingProfile
