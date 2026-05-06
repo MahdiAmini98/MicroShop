@@ -26,6 +26,12 @@
     <Project Path="OrderService.Domain/OrderService.Domain.csproj" Id="e790fb4d-b223-40a7-9b5f-7c48474aa964" />
     <Project Path="OrderService.Infrastructure/OrderService.Infrastructure.csproj" Id="807e69c7-3e91-4a29-a4eb-66079be69058" />
   </Folder>
+  <Folder Name="/Src/Services/PaymentService/">
+    <Project Path="PaymentService.API/PaymentService.API.csproj" Id="295d4f32-2633-4d4e-bd51-01f83eb93e3a" />
+    <Project Path="PaymentService.Application/PaymentService.Application.csproj" Id="0d75c645-50ad-4b77-bce3-a79a75f178f9" />
+    <Project Path="PaymentService.Domain/PaymentService.Domain.csproj" Id="9099001a-7e48-49ca-9b1c-f13f792b0f13" />
+    <Project Path="PaymentService.Infrastructure/PaymentService.Infrastructure.csproj" Id="bc554372-ea9f-4705-9474-8e3ffa1ea3df" />
+  </Folder>
   <Folder Name="/Src/Services/ProductService/">
     <Project Path="D:/source/Programming/MicroService/MicroShop/ProductService.API/ProductService.API.csproj" />
     <Project Path="D:/source/Programming/MicroService/MicroShop/ProductService.Application/ProductService.Application.csproj" />
