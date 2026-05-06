@@ -7,6 +7,7 @@
 <h1>محصولات </h1>
 
 
+
 <table class="table table-hover table-bordered table-responsive">
     <thead>
         <tr>
@@ -41,6 +42,8 @@
                        asp-route-id="@item.id">
                         جزئیات
                     </a>
+                    <a asp-action="AddToBasket" asp-controller="Basket" asp-route-ProductId="@item.id" class="btn btn-success"> افزودن به سبد </a>
+
                 </td>
             </tr>
         }

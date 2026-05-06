@@ -35,6 +35,7 @@ namespace OrderService.Application.Services
                 LastName = orders.LastName,
                 PhoneNumber = orders.PhoneNumber,
                 UserId = orders.UserId,
+                TotalPrice = orders.TotalPrice,
                 OrderPaid = orders.OrderPaid,
                 OrderPlaced = orders.OrderPlaced,
                 OrderLines = orders.OrderLines.Select(ol => new OrderLineDto
