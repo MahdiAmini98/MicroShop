@@ -1,8 +1,11 @@
+﻿using Common.EventBus.Constants;
+using Common.EventBus.Messages.OrderToPayment;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
-using PaymentService.Domain.Entities;
+using Common.EventBus.Extensions;
+using PaymentService.Application.Interfaces;
 using PaymentService.Infrastructure.Context;
-using ProductService.Infrastructure.Context;
+using PaymentService.Application.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +14,10 @@ var connectionString = builder.Configuration.GetConnectionString("PaymentConnect
 builder.Services.AddDbContext<PaymentDataBaseContext>(p => p.UseSqlServer(connectionString));
 #endregion
 
+#region Services
+builder.Services.AddTransient<IPaymentService, PaymentService.Application.Services.PaymentService>();
 
+#endregion
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -29,6 +35,17 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 #endregion
+
+
+#region RabitMQ
+// 1. ثبت Producer و تنظیمات RabbitMQ
+builder.Services.AddRabbitMQService(builder.Configuration);
+
+// 2. ثبت Consumer 
+builder.Services.AddRabbitMQConsumer<SendOrderToPaymentMessage, SendOrderToPaymentHandler>(
+    QueueNames.SendOrderToPayment);
+#endregion
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
