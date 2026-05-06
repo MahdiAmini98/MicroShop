@@ -18,6 +18,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\BasketService.Application\BasketService.Application.csproj" />
 	  <ProjectReference Include="..\BasketService.Infrastructure\BasketService.Infrastructure.csproj" />
+	  <ProjectReference Include="..\Common.EventBus\Common.EventBus.csproj" />
 	</ItemGroup>
 
 </Project>

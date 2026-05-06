@@ -1,5 +1,9 @@
+﻿using Common.EventBus.Constants;
+using Common.EventBus.Extensions;
+using Common.EventBus.Messages.BasketToOrder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using OrderService.Application.Handlers;
 using OrderService.Application.Interfaces;
 using OrderService.Infrastructure.Context;
 
@@ -13,6 +17,7 @@ builder.Services.AddDbContext<OrderDataBaseContext>(p => p.UseSqlServer(connecti
 
 #region Services
 builder.Services.AddTransient<IOrderService, OrderService.Application.Services.OrderService>();
+builder.Services.AddTransient<IProductService, OrderService.Application.Services.ProductService>();
 #endregion
 
 builder.Services.AddControllers();
@@ -29,6 +34,15 @@ builder.Services.AddSwaggerGen(c =>
         Description = "API for managing Orders and OrderLines"
     });
 });
+#endregion
+
+#region RabitMQ
+// 1. ثبت Producer و تنظیمات RabbitMQ
+builder.Services.AddRabbitMQService(builder.Configuration);
+
+// 2. ثبت Consumer 
+builder.Services.AddRabbitMQConsumer<BasketCheckoutMessage, BasketCheckoutHandler>(
+    QueueNames.BasketCheckout);
 #endregion
 
 var app = builder.Build();

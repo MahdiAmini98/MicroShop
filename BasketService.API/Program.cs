@@ -1,8 +1,9 @@
-using BasketService.Application.Interfaces;
+﻿using BasketService.Application.Interfaces;
 using BasketService.Application.MappingProfile;
 using BasketService.Domain.Repository;
 using BasketService.Infrastructure.Context;
 using BasketService.Infrastructure.gRPC;
+using Common.EventBus.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 
@@ -30,6 +31,10 @@ builder.Services.AddTransient<IDiscountService, BasketService.Application.Servic
 builder.Services.AddAutoMapper(typeof(BasketMappingProfile));
 #endregion
 
+#region RabitMQ
+// ثبت سرویس RabbitMQ
+builder.Services.AddRabbitMQService(builder.Configuration);
+#endregion
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 

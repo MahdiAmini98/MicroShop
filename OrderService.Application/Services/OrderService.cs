@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Common.EventBus.Messages.BasketToOrder;
+using Microsoft.EntityFrameworkCore;
 using OrderService.Application.Dtos;
 using OrderService.Application.Interfaces;
 using OrderService.Domain.Entities;
@@ -9,10 +10,12 @@ namespace OrderService.Application.Services
     public class OrderService : IOrderService
     {
         private readonly OrderDataBaseContext context;
+        private readonly IProductService productService;
 
-        public OrderService(OrderDataBaseContext context)
+        public OrderService(OrderDataBaseContext context, IProductService productService)
         {
             this.context = context;
+            this.productService = productService;
         }
 
         public OrderDetailDto GetOrderById(Guid Id)
@@ -62,6 +65,40 @@ namespace OrderService.Application.Services
                 TotalPrice = p.TotalPrice,
             }).ToList();
             return orders;
+        }
+
+        public bool RegisterOrderService(BasketCheckoutMessage basket)
+        {
+            List<OrderLine> orderLines = new List<OrderLine>();
+            foreach (var basketItem in basket.BasketItems)
+            {
+                var product = productService.GetProduct(new ProductDto
+                {
+                    Name = basketItem.Name,
+                    Price = basketItem.Price,
+                    ProductId = basketItem.ProductId,
+                });
+
+                orderLines.Add(new OrderLine
+                {
+                    Id = Guid.NewGuid(),
+                    Quantity = basketItem.Quantity,
+                    Product = product,
+                });
+
+            }
+
+            Order order = new Order(basket.UserId,
+                  basket.FirstName,
+                  basket.LastName,
+                  basket.Address,
+                  basket.PhoneNumber,
+                  basket.TotalPrice,
+                  orderLines);
+
+            context.Orders.Add(order);
+            context.SaveChanges();
+            return true;
         }
     }
 }

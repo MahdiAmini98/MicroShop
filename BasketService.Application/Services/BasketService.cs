@@ -4,10 +4,10 @@ using BasketService.Application.Interfaces;
 using BasketService.Domain.Entities;
 using BasketService.Infrastructure.Context;
 using Common.Core.Dtos;
+using Common.EventBus.Constants;
+using Common.EventBus.Interfaces;
+using Common.EventBus.Messages.BasketToOrder;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BasketService.Application.Services
 {
@@ -15,11 +15,12 @@ namespace BasketService.Application.Services
     {
         private readonly BasketDataBaseContext context;
         private readonly IMapper mapper;
-
-        public BasketService(BasketDataBaseContext context, IMapper mapper)
+        private readonly IMessageBus _messageBus;
+        public BasketService(BasketDataBaseContext context, IMapper mapper, IMessageBus messageBus)
         {
             this.context = context;
             this.mapper = mapper;
+            this._messageBus = messageBus;
         }
 
         public void AddItemToBasket(AddItemToBasketDto item)
@@ -199,15 +200,41 @@ namespace BasketService.Application.Services
                     Message = $"{nameof(basket)} Not Found!",
                 };
             }
+
+            // ارسال پیام برای سرویس Order
+            BasketCheckoutMessage message = mapper.Map<BasketCheckoutMessage>(checkoutBasket);
+
+            int totalPrice = default;
+            foreach (var item in basket.Items)
+            {
+                var basketItem = new BasketItemMessage
+                {
+                    BasketItemId = item.Id,
+                    ProductId = item.ProductId,
+                    Name = item.Product.ProductName,
+                    Price = item.Product.UnitPrice,
+                    Quantity = item.Quantity,
+                };
+                totalPrice += item.Product.UnitPrice * item.Quantity;
+                message.BasketItems.Add(basketItem);
+            }
+
             // دریافت تخفیف از سرویس discount
             DiscountDto discount = null;
             if (basket.DiscountId.HasValue)
                 discount = discountService.GetDiscountById(basket.DiscountId.Value);
 
+            if (discount != null)
+            {
+                message.TotalPrice = totalPrice - discount.Amount;
+            }
+            else
+            {
+                message.TotalPrice = totalPrice;
+            }
 
-
-            // ارسال پیام برای سرویس Order
-
+                // ارسال پیام به صف
+                _messageBus.PublishAsync(message, QueueNames.BasketCheckout).GetAwaiter();
 
             //حذف سبد خرید
             context.Baskets.Remove(basket);
