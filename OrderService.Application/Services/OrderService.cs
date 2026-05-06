@@ -1,4 +1,8 @@
-﻿using Common.EventBus.Messages.BasketToOrder;
+﻿using Common.Core.Dtos;
+using Common.EventBus.Constants;
+using Common.EventBus.Interfaces;
+using Common.EventBus.Messages.BasketToOrder;
+using Common.EventBus.Messages.OrderToPayment;
 using Microsoft.EntityFrameworkCore;
 using OrderService.Application.Dtos;
 using OrderService.Application.Interfaces;
@@ -11,11 +15,13 @@ namespace OrderService.Application.Services
     {
         private readonly OrderDataBaseContext context;
         private readonly IProductService productService;
+        private readonly IMessageBus _messageBus;
 
-        public OrderService(OrderDataBaseContext context, IProductService productService)
+        public OrderService(OrderDataBaseContext context, IProductService productService, IMessageBus messageBus)
         {
             this.context = context;
             this.productService = productService;
+            _messageBus = messageBus;
         }
 
         public OrderDetailDto GetOrderById(Guid Id)
@@ -38,6 +44,7 @@ namespace OrderService.Application.Services
                 TotalPrice = orders.TotalPrice,
                 OrderPaid = orders.OrderPaid,
                 OrderPlaced = orders.OrderPlaced,
+                PaymentStatus = orders.PaymentStatus,
                 OrderLines = orders.OrderLines.Select(ol => new OrderLineDto
                 {
                     Id = ol.Id,
@@ -64,6 +71,7 @@ namespace OrderService.Application.Services
                 OrderPlaced = p.OrderPlaced,
                 ItemCount = p.OrderLines.Count(),
                 TotalPrice = p.TotalPrice,
+                PaymentStatus = p.PaymentStatus
             }).ToList();
             return orders;
         }
@@ -100,6 +108,37 @@ namespace OrderService.Application.Services
             context.Orders.Add(order);
             context.SaveChanges();
             return true;
+        }
+
+        public ResultDto RequestPayment(Guid OrderId)
+        {
+            var order = context.Orders.SingleOrDefault(p => p.Id == OrderId);
+            if (order == null)
+            {
+                return new ResultDto
+                {
+                    IsSuccess = false,
+                    Message = "سفارش پیدا نشد"
+                };
+            }
+            // ارسال پیام پرداخت برای سرویس پرداخت
+            SendOrderToPaymentMessage paymentMessage = new SendOrderToPaymentMessage()
+            {
+                Amount = order.TotalPrice,
+                CreationTime = DateTime.Now,
+                MessageId = Guid.NewGuid(),
+                OrderId = order.Id,
+               
+            };
+            _messageBus.PublishAsync(paymentMessage, QueueNames.SendOrderToPayment).GetAwaiter();
+            //تغییر وضعیت پرداخت سفارش
+            order.RequestPayment();
+            context.SaveChanges();
+            return new ResultDto
+            {
+                IsSuccess = true,
+                Message = "درخواست پرداخت ثبت شد"
+            };
         }
     }
 }

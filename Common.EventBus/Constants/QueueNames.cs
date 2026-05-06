@@ -2,8 +2,7 @@
 {
     public static class QueueNames
     {
-        // صف‌های مربوط به سبد خرید
         public const string BasketCheckout = "basket-checkout-queue";
-
+        public const string SendOrderToPayment = "send-order-to-payment-queue";
     }
 }

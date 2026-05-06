@@ -1,4 +1,5 @@
-﻿using Common.EventBus.Messages.BasketToOrder;
+﻿using Common.Core.Dtos;
+using Common.EventBus.Messages.BasketToOrder;
 using OrderService.Application.Dtos;
 
 namespace OrderService.Application.Interfaces
@@ -8,5 +9,6 @@ namespace OrderService.Application.Interfaces
         List<OrderDto> GetOrdersForUser(string UserId);
         OrderDetailDto GetOrderById(Guid Id);
         bool RegisterOrderService(BasketCheckoutMessage basket);
+        ResultDto RequestPayment(Guid OrderId);
     }
 }

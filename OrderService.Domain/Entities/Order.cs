@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using static OrderService.Domain.Enums.Enumration;
 
 namespace OrderService.Domain.Entities
 {
@@ -18,6 +19,7 @@ namespace OrderService.Domain.Entities
         public int TotalPrice { get; set; }
 
         public ICollection<OrderLine> OrderLines { get; private set; }
+        public PaymentStatus PaymentStatus { get; private set; }
 
         public Order(string UserId,
             string FirstName,
@@ -35,8 +37,20 @@ namespace OrderService.Domain.Entities
             this.LastName = LastName;
             this.Address = Address;
             this.PhoneNumber = PhoneNumber;
-            this.TotalPrice = TotalPrice;
+            this.TotalPrice = TotalPrice; 
+            this.PaymentStatus = PaymentStatus.unPaid;
         }
         public Order() { }
+
+        public void RequestPayment()
+        {
+            PaymentStatus = PaymentStatus.RequestPayment;
+        }
+
+        public void PaymentIsDone()
+        {
+            OrderPaid = true;
+            PaymentStatus = PaymentStatus.isPaid;
+        }
     }
 }
