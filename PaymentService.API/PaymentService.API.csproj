@@ -13,13 +13,12 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
 	  <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
+	  <PackageReference Include="Zarinpal" Version="3.0.1" />
+	  <PackageReference Include="RestSharp" Version="106.12.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\Common.Core\Common.Core.csproj" />
     <ProjectReference Include="..\PaymentService.Application\PaymentService.Application.csproj" />
     <ProjectReference Include="..\PaymentService.Infrastructure\PaymentService.Infrastructure.csproj" />
     <ProjectReference Include="..\ProductService.Application\ProductService.Application.csproj" />
