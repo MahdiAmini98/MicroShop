@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProductService.Application.Dtos;
+using ProductService.Application.Dtos.Product;
 using ProductService.Application.Interfaces;
 using ProductService.Domain.Entities;
 using ProductService.Infrastructure.Context;
@@ -16,6 +17,23 @@ namespace ProductService.Application.Services
         public ProductService(ProductDbContext context)
         {
             Context = context;
+        }
+
+        public void AddNewProduct(AddNewProductDto addNewProduct)
+        {
+            var category = Context.Categories.Find(addNewProduct.CategoryId);
+            if (category == null)
+                throw new Exception("Category Not Found...!");
+            Product product = new Product()
+            {
+                Category = category,
+                Description = addNewProduct.Description,
+                Image = addNewProduct.Image,
+                Name = addNewProduct.Name,
+                Price = addNewProduct.Price
+            };
+            Context.Products.Add(product);
+            Context.SaveChanges();
         }
 
         public void AddProduct(AddNewProductDto product)
@@ -75,5 +93,19 @@ namespace ProductService.Application.Services
             }).ToList();
             return data;
         }
+
+        public bool UpdateProductName(UpdateProductDto updateProduct)
+        {
+            var product = Context.Products.Find(updateProduct.ProductId);
+            if (product is not null)
+            {
+                product.Name = updateProduct.Name;
+                Context.SaveChanges();
+                return true;
+            }
+            else
+                return false;
+        }
+
     }
 }

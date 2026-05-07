@@ -5,6 +5,7 @@
     <Project Path="Common.EventBus/Common.EventBus.csproj" Id="2f335ef8-a52e-4550-b401-86aac1cc50c2" />
   </Folder>
   <Folder Name="/Src/Presentation/">
+    <Project Path="MicroShop.Admin.Mvc/MicroShop.Admin.Mvc.csproj" Id="931c8752-1588-4ac1-9fd0-0ba3fd537beb" />
     <Project Path="MicroShop.Web.Mvc/MicroShop.Web.Mvc.csproj" Id="e9707d3c-3618-48c7-88a3-2a86ca5e9b94" />
   </Folder>
   <Folder Name="/Src/Services/" />
