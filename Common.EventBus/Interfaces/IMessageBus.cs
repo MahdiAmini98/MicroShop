@@ -27,5 +27,19 @@ namespace Common.EventBus.Interfaces
         Task StartConsumerAsync<TMessage, THandler>(string queueName, CancellationToken cancellationToken = default)
             where TMessage : BaseMessage
             where THandler : IMessageHandler<TMessage>;
+
+        // ========== Fanout Exchange (جدید) ==========
+        /// <summary>
+        /// ارسال پیام به یک Exchange از نوع Fanout (همه مشترکین دریافت می‌کنند)
+        /// </summary>
+        Task PublishFanoutAsync<TMessage>(TMessage message, string exchangeName) where TMessage : BaseMessage;
+
+        /// <summary>
+        /// اشتراک در یک Exchange از نوع Fanout (هر سرویس یک صف اختصاصی می‌سازد)
+        /// </summary>
+        Task SubscribeFanoutAsync<TMessage, THandler>(string exchangeName, string? queueName = null,
+                                 CancellationToken cancellationToken = default)
+            where TMessage : BaseMessage
+            where THandler : IMessageHandler<TMessage>;
     }
 }

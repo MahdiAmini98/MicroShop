@@ -64,5 +64,39 @@ namespace Common.EventBus.Extensions
 
             return services;
         }
+
+        /// <summary>
+        /// ثبت مصرف‌کننده Fanout برای سناریوی دیتابیس (Named Queue)
+        /// </summary>
+        public static IServiceCollection AddRabitMQFanoutConsumer<TMessage, THandler>(
+            this IServiceCollection services, string exchangeName, string queueName)
+            where TMessage : BaseMessage
+            where THandler : class, IMessageHandler<TMessage>
+        {
+            // ثبت Handler
+            services.AddScoped<IMessageHandler<TMessage>, THandler>();
+
+            // ثبت Consumer با Named Queue
+            services.AddHostedService(sp =>
+                new RabbitMQFanoutConsumerService<TMessage, THandler>(sp, exchangeName, queueName));
+            return services;
+        }
+
+        /// <summary>
+        /// ثبت مصرف‌کننده Fanout برای سناریوی کش (Anonymous Queue)
+        /// </summary>
+        public static IServiceCollection AddRabitMQFanoutConsumer<TMessage, THandler>(
+            this IServiceCollection services, string exchangeName)
+            where TMessage : BaseMessage
+            where THandler : class, IMessageHandler<TMessage>
+        {
+            // ثبت Handler
+            services.AddScoped<IMessageHandler<TMessage>, THandler>();
+
+            // ثبت Consumer با Anonymous Queue
+            services.AddHostedService(sp =>
+                new RabbitMQFanoutConsumerService<TMessage, THandler>(sp, exchangeName));
+            return services;
+        }
     }
 }

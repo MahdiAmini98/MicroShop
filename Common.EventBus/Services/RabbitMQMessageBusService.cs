@@ -79,7 +79,9 @@ namespace Common.EventBus.Services
 
         #endregion
 
-        #region Producer
+        #region Direct Producer And Consumer
+
+        #region Direct Producer
 
         public virtual async Task PublishAsync<TMessage>(TMessage message, string queueName) where TMessage : BaseMessage
         {
@@ -122,7 +124,7 @@ namespace Common.EventBus.Services
 
         #endregion
 
-        #region Consumer
+        #region Direct Consumer
 
         /// <summary>
         /// اشتراک در یک صف و پردازش پیام‌ها با Handler مشخص
@@ -243,6 +245,168 @@ namespace Common.EventBus.Services
 
         #endregion
 
+        #endregion
+
+        #region Fanout Producer And Consumer
+
+        #region Fanout Producer
+
+        /// <summary>
+        /// ارسال پیام Fanout (به همه مشترکین)
+        /// </summary>
+        public virtual async Task PublishFanoutAsync<TMessage>(TMessage message, string exchangeName) where TMessage : BaseMessage
+        {
+            await EnsureConnectionAsync();
+
+            try
+            {
+                message.MessageType = typeof(TMessage).Name;
+
+                // اعلان Exchange از نوع Fanout (اگر وجود نداشته باشد)
+                await _channel.ExchangeDeclareAsync(
+                    exchange: exchangeName,
+                    type: ExchangeType.Fanout,
+                    durable: true,
+                    autoDelete: false);
+
+                var json = JsonConvert.SerializeObject(message);
+                var body = Encoding.UTF8.GetBytes(json);
+
+                var properties = new BasicProperties
+                {
+                    Persistent = true,
+                    DeliveryMode = DeliveryModes.Persistent,
+                    ContentType = "application/json",
+                    MessageId = message.MessageId.ToString(),
+                    Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+                };
+
+                _logger.LogDebug("Publishing fanout message {MessageType} to exchange {ExchangeName}",
+                    message.MessageType, exchangeName);
+
+                await _channel.BasicPublishAsync(
+                    exchange: exchangeName,
+                    routingKey: "",          // در Fanout، routingKey نادیده گرفته می‌شود
+                    mandatory: false,
+                    basicProperties: properties,
+                    body: body);
+
+                _logger.LogInformation("Fanout message {MessageId} published to exchange {ExchangeName}",
+                    message.MessageId, exchangeName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to publish fanout message {MessageType}", typeof(TMessage).Name);
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region Fanout Consumer
+        /// <summary>
+        /// اشتراک در Exchange از نوع Fanout (هر سرویس یک صف اختصاصی و خودکار می‌سازد)
+        /// </summary>
+        /// 
+
+        public virtual async Task SubscribeFanoutAsync<TMessage, THandler>(string exchangeName, string? queueName = null, CancellationToken cancellationToken = default)
+            where TMessage : BaseMessage
+            where THandler : IMessageHandler<TMessage>
+        {
+            await EnsureConnectionAsync();
+
+            // 1. اعلان Exchange از نوع Fanout
+            await _channel.ExchangeDeclareAsync(
+                exchange: exchangeName,
+                type: ExchangeType.Fanout,
+                durable: true,
+                autoDelete: false);
+
+            // 2. تصمیم‌گیری درباره صف
+            string actualQueueName;
+            if (string.IsNullOrWhiteSpace(queueName))
+            {
+                // حالت تصادفی (Anonymous) - مناسب کش محلی
+                var declareResult = await _channel.QueueDeclareAsync(
+                    queue: "", // نام خالی → RabbitMQ یک نام تصادفی می‌دهد
+                    durable: false,
+                    exclusive: true,
+                    autoDelete: true,
+                    arguments: null);
+                actualQueueName = declareResult.QueueName;
+                _logger.LogInformation("Created temporary queue '{QueueName}' for fanout (cache scenario)", actualQueueName);
+            }
+            else
+            {
+                // حالت Named Queue - مناسب دیتابیس مشترک (Compelling Consumers)
+                await _channel.QueueDeclareAsync(
+                    queue: queueName,
+                    durable: true,      
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+                actualQueueName = queueName;
+                _logger.LogInformation("Using named queue '{QueueName}' for fanout (database scenario)", actualQueueName);
+            }
+
+            _logger.LogInformation("Created temporary queue '{QueueName}' for fanout subscription to exchange '{ExchangeName}'",
+                queueName, exchangeName);
+
+
+            // 3. Bind کردن صف به Exchange
+            await _channel.QueueBindAsync(actualQueueName, exchangeName, routingKey: "");
+
+            // 4. شروع مصرف (Consumer)
+            var consumer = new AsyncEventingBasicConsumer(_channel);
+            consumer.ReceivedAsync += async (sender, args) =>
+            {
+                await ProcessFanoutMessage<TMessage, THandler>(args, cancellationToken);
+            };
+
+            await _channel.BasicConsumeAsync(queue: actualQueueName, autoAck: false, consumer: consumer);
+        }
+
+        /// <summary>
+        /// پردازش پیام دریافتی از Fanout Exchange
+        /// </summary>
+        private async Task ProcessFanoutMessage<TMessage, THandler>(BasicDeliverEventArgs args, CancellationToken cancellationToken)
+            where TMessage : BaseMessage
+            where THandler : IMessageHandler<TMessage>
+        {
+            var messageId = args.BasicProperties?.MessageId ?? "unknown";
+
+            try
+            {
+                var body = args.Body.ToArray();
+                var messageJson = Encoding.UTF8.GetString(body);
+                var message = JsonConvert.DeserializeObject<TMessage>(messageJson);
+
+                if (message == null)
+                {
+                    _logger.LogWarning("Failed to deserialize fanout message {MessageId}", messageId);
+                    await _channel.BasicNackAsync(args.DeliveryTag, false, false);
+                    return;
+                }
+
+                using var scope = _serviceProvider.CreateScope();
+                var handler = scope.ServiceProvider.GetRequiredService<IMessageHandler<TMessage>>();
+                await handler.HandleAsync(message, cancellationToken);
+
+                await _channel.BasicAckAsync(args.DeliveryTag, false);
+                _logger.LogInformation("Fanout message {MessageId} processed successfully", messageId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing fanout message {MessageId}", messageId);
+                await _channel.BasicNackAsync(args.DeliveryTag, false, false);
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+
         #region Dispose
         public void Dispose()
         {
@@ -257,7 +421,6 @@ namespace Common.EventBus.Services
                 _logger.LogInformation("RabbitMQ resources disposed");
             }
         }
-
         #endregion
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Common.EventBus.Constants;
 using Common.EventBus.Extensions;
 using Common.EventBus.Messages.BasketToOrder;
+using Common.EventBus.Messages.Events;
 using Common.EventBus.Messages.PaymentToOrder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
@@ -38,15 +39,15 @@ builder.Services.AddSwaggerGen(c =>
 #endregion
 
 #region RabitMQ
-// 1. ثبت Producer و تنظیمات RabbitMQ
 builder.Services.AddRabbitMQService(builder.Configuration);
 
-// 2. ثبت Consumer 
 builder.Services.AddRabbitMQConsumer<BasketCheckoutMessage, BasketCheckoutHandler>(
     QueueNames.BasketCheckout);
 
 builder.Services.AddRabbitMQConsumer<PaymentIsDoneMessage, PaymentIsDoneHandler>(
     QueueNames.PaymentIsDone);
+
+builder.Services.AddRabitMQFanoutConsumer<ProductUpdatedNameEvent, OrderProductUpdatedNameHandler>(ExchangeNames.ProductUpdatedNameEvent, QueueNames.OrderProductUpdatedName);
 #endregion
 
 var app = builder.Build();

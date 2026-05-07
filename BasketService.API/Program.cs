@@ -1,9 +1,13 @@
-﻿using BasketService.Application.Interfaces;
+﻿using BasketService.Application.Handlers;
+using BasketService.Application.Interfaces;
 using BasketService.Application.MappingProfile;
+using BasketService.Application.Services;
 using BasketService.Domain.Repository;
 using BasketService.Infrastructure.Context;
 using BasketService.Infrastructure.gRPC;
+using Common.EventBus.Constants;
 using Common.EventBus.Extensions;
+using Common.EventBus.Messages.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 
@@ -21,9 +25,11 @@ builder.Services.AddDbContext<BasketDataBaseContext>(p => p.UseSqlServer(connect
 builder.Services.AddTransient<IDiscountRepository, DiscountGrpcClient>();
 
 #endregion
+
 #region Services
 builder.Services.AddTransient<IBasketService, BasketService.Application.Services.BasketService>();
 builder.Services.AddTransient<IDiscountService, BasketService.Application.Services.DiscountService>();
+builder.Services.AddTransient<IProductService, ProductService>();
 
 #endregion
 
@@ -32,8 +38,9 @@ builder.Services.AddAutoMapper(typeof(BasketMappingProfile));
 #endregion
 
 #region RabitMQ
-// ثبت سرویس RabbitMQ
 builder.Services.AddRabbitMQService(builder.Configuration);
+
+builder.Services.AddRabitMQFanoutConsumer<ProductUpdatedNameEvent, BasketProductUpdatedNameHandler>(ExchangeNames.ProductUpdatedNameEvent, QueueNames.BasketProductUpdatedName);
 #endregion
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();

@@ -3,6 +3,7 @@ using Microsoft.OpenApi;
 using ProductService.Application.Interfaces;
 using ProductService.Application.Services;
 using ProductService.Infrastructure.Context;
+using Common.EventBus.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,9 @@ builder.Services.AddTransient<ICategoryService, CategoryService>();
 builder.Services.AddTransient<IProductService, ProductService.Application.Services.ProductService>();
 #endregion
 
+#region RabitMQ
+builder.Services.AddRabbitMQService(builder.Configuration);
+#endregion
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();

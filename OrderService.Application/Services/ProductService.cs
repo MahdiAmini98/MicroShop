@@ -22,6 +22,17 @@ namespace OrderService.Application.Services
                 return CreateNewProduct(productDto);
         }
 
+        public bool ProductUpdatedName(Guid ProductId, string productName)
+        {
+            var product = context.Products.Find(ProductId);
+            if (product is not null)
+            {
+                product.Name = productName;
+                context.SaveChanges();
+            }
+            return true;
+        }
+
         private Product CreateNewProduct(ProductDto productDto)
         {
             Product newProduct = new Product()

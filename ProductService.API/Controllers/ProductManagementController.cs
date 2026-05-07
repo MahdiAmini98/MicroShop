@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Common.EventBus.Constants;
+using Common.EventBus.Interfaces;
+using Common.EventBus.Messages.Events;
 using Microsoft.AspNetCore.Mvc;
 using ProductService.Application.Dtos;
 using ProductService.Application.Dtos.Product;
@@ -41,9 +43,22 @@ namespace ProductService.API.Controllers
         }
 
         [HttpPut]
-        public IActionResult Put(UpdateProductDto updateProduct)
+        public IActionResult Put(UpdateProductDto updateProduct, [FromServices] IMessageBus messageBus)
         {
-            return Ok(productService.UpdateProductName(updateProduct));
+            var result = productService.UpdateProductName(updateProduct);
+            if (result)
+            {
+                ProductUpdatedNameEvent @event = new ProductUpdatedNameEvent
+                {
+                    CreationTime = DateTime.Now,
+                    Id = updateProduct.ProductId,
+                    NewName = updateProduct.Name,
+                    MessageId = Guid.NewGuid(),
+                };
+
+                 messageBus.PublishFanoutAsync(@event, ExchangeNames.ProductUpdatedNameEvent).GetAwaiter();
+            }
+            return Ok(result);
         }
 
     }
