@@ -1,6 +1,7 @@
 ﻿using Common.EventBus.Constants;
 using Common.EventBus.Extensions;
 using Common.EventBus.Messages.BasketToOrder;
+using Common.EventBus.Messages.PaymentToOrder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using OrderService.Application.Handlers;
@@ -43,6 +44,9 @@ builder.Services.AddRabbitMQService(builder.Configuration);
 // 2. ثبت Consumer 
 builder.Services.AddRabbitMQConsumer<BasketCheckoutMessage, BasketCheckoutHandler>(
     QueueNames.BasketCheckout);
+
+builder.Services.AddRabbitMQConsumer<PaymentIsDoneMessage, PaymentIsDoneHandler>(
+    QueueNames.PaymentIsDone);
 #endregion
 
 var app = builder.Build();

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using static OrderService.Domain.Enums.Enumration;
+﻿using static Common.Core.Enums.Enumration;
 
 namespace OrderService.Domain.Entities
 {

@@ -1,4 +1,4 @@
-﻿namespace OrderService.Domain.Enums
+﻿namespace Common.Core.Enums
 {
     public class Enumration
     {

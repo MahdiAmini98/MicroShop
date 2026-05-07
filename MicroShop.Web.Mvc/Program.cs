@@ -1,9 +1,9 @@
 using MicroShop.Web.Mvc.Services.BasketServices;
 using MicroShop.Web.Mvc.Services.DiscountService;
 using MicroShop.Web.Mvc.Services.OrderService;
+using MicroShop.Web.Mvc.Services.PaymentService;
 using MicroShop.Web.Mvc.Services.ProductServices;
 using RestSharp;
-using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +31,13 @@ builder.Services.AddScoped<IOrderService>(p =>
 {
     return new OrderService(
         new RestClient(builder.Configuration.GetSection("MicroservicAddress:Order:Uri").Value!));
+});
+
+
+builder.Services.AddScoped<IPaymentService>(p =>
+{
+    return new PaymentService(
+        new RestClient(builder.Configuration.GetSection("MicroservicAddress:Payment:Uri").Value!));
 });
 
 var app = builder.Build();

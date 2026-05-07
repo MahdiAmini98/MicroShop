@@ -1,4 +1,7 @@
 ﻿using Common.Core.Dtos;
+using Common.EventBus.Constants;
+using Common.EventBus.Interfaces;
+using Common.EventBus.Messages.PaymentToOrder;
 using Dto.Payment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,9 +23,9 @@ namespace PaymentService.API.Controllers
         private readonly IPaymentService paymentService;
         private readonly IConfiguration configuration;
         private readonly string merchendId;
+        private readonly IMessageBus _messageBus;
 
-        public PayController(IPaymentService paymentService
-            , IConfiguration configuration)
+        public PayController(IPaymentService paymentService, IConfiguration configuration, IMessageBus messageBus)
         {
             var expose = new Expose();
             _payment = expose.CreatePayment();
@@ -31,7 +34,7 @@ namespace PaymentService.API.Controllers
             this.paymentService = paymentService;
             this.configuration = configuration;
             merchendId = configuration["merchendId"];
-
+            _messageBus = messageBus;
         }
 
         [HttpGet]
@@ -107,6 +110,14 @@ namespace PaymentService.API.Controllers
                     paymentService.PayDone(paymentId, Authority, verification.RefID);
 
                     // ارسال پیغام برای سرویس سفارش
+                    PaymentIsDoneMessage paymentIsDoneMessage = new PaymentIsDoneMessage
+                    {
+                        CreationTime = DateTime.Now,
+                        MessageId = Guid.NewGuid(),
+                        OrderId = pay.OrderId,
+                    };
+
+                    _messageBus.PublishAsync(paymentIsDoneMessage, QueueNames.PaymentIsDone).GetAwaiter();
 
                     return Redirect(callbackUrlFront);
 
