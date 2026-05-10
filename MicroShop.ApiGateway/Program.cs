@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using MicroShop.ApiGateway.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -59,6 +60,14 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // ==========================================
+// 2.1. تنظیمات  برای ExceptionHandling
+// ==========================================
+
+builder.Services.AddGlobalExceptionHandling();
+
+
+
+// ==========================================
 // 3. تنظیمات Authentication (JWT)
 // ==========================================
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "your-32-character-or-longer-secret-key-here-please-change-me";
@@ -104,6 +113,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+
+
 var app = builder.Build();
 
 // ==========================================
@@ -121,10 +132,13 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+
+
+
+app.UseExceptionHandler();
 // Middlewareهای عمومی
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
-
 // Authentication & Authorization (قبل از ReverseProxy)
 app.UseAuthentication();
 app.UseAuthorization();
