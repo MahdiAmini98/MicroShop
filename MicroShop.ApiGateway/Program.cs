@@ -31,6 +31,12 @@ builder.Services.AddSecurityHeaders(builder.Configuration);
 
 
 // ==========================================
+// 1.2 خواندن uthForwarding از appsettings.json   
+// ==========================================
+
+builder.Services.AddAuthForwarding(builder.Configuration);
+
+// ==========================================
 // 2. تنظیمات Swagger برای API Gateway
 // ==========================================
 builder.Services.AddEndpointsApiExplorer();
@@ -82,8 +88,16 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddGlobalExceptionHandling();
 
 
+
+
 // ==========================================
-// 3. تنظیمات Authentication (JWT)
+// 3. تنظیمات YARP Reverse Proxy
+// ==========================================
+builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy")).AddAuthForwardingTransforms();
+
+// ==========================================
+// 4. تنظیمات Authentication (JWT)
 // ==========================================
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "your-32-character-or-longer-secret-key-here-please-change-me";
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "MicroShopGateway";
@@ -109,11 +123,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// ==========================================
-// 4. تنظیمات YARP Reverse Proxy
-// ==========================================
-builder.Services.AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 // ==========================================
 // 5. تنظیمات CORS (برای دسترسی MVC و Admin)
@@ -148,6 +157,9 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseExceptionHandler();
+
+app.UseSecurityHeaders();
+
 // Middlewareهای عمومی
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
@@ -188,7 +200,6 @@ app.MapPost("/generate-token", (HttpContext context) =>
 });
 
 
-app.UseSecurityHeaders();
 
 // YARP Reverse Proxy (در انتها)
 app.MapReverseProxy();
