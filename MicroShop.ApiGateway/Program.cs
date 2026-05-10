@@ -24,6 +24,11 @@ builder.Configuration
         optional: false,
         reloadOnChange: true);
 
+// ==========================================
+// 1.2 خواندن SecurityHeaders از appsettings.json   
+// ==========================================
+builder.Services.AddSecurityHeaders(builder.Configuration);
+
 
 // ==========================================
 // 2. تنظیمات Swagger برای API Gateway
@@ -181,6 +186,9 @@ app.MapPost("/generate-token", (HttpContext context) =>
     var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
     return Results.Ok(new { token = tokenString });
 });
+
+
+app.UseSecurityHeaders();
 
 // YARP Reverse Proxy (در انتها)
 app.MapReverseProxy();
