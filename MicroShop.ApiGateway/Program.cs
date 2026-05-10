@@ -14,6 +14,17 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
+
+// ==========================================
+// 1.1 Load کردن فایل
+// ==========================================
+builder.Configuration
+    .AddJsonFile(
+        "reverse-proxy.json",
+        optional: false,
+        reloadOnChange: true);
+
+
 // ==========================================
 // 2. تنظیمات Swagger برای API Gateway
 // ==========================================
@@ -66,7 +77,6 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddGlobalExceptionHandling();
 
 
-
 // ==========================================
 // 3. تنظیمات Authentication (JWT)
 // ==========================================
@@ -114,7 +124,6 @@ builder.Services.AddCors(options =>
 });
 
 
-
 var app = builder.Build();
 
 // ==========================================
@@ -131,8 +140,6 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = "swagger";
     });
 }
-
-
 
 
 app.UseExceptionHandler();

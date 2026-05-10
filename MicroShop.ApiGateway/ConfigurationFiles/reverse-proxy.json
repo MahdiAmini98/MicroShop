@@ -1,0 +1,92 @@
+{
+  "ReverseProxy": {
+    "Routes": {
+      "product-api-route": {
+        "ClusterId": "product-cluster",
+        "Match": {
+          "Path": "/api/product/{**catch-all}"
+        },
+        "Transforms": [
+          { "PathPattern": "/api/v1/product/{**catch-all}" }
+        ]
+      },
+      "basket-api-route": {
+        "ClusterId": "basket-cluster",
+        "Match": {
+          "Path": "/api/basket/{**catch-all}"
+        },
+        "Transforms": [
+          { "PathPattern": "/api/v1/basket/{**catch-all}" }
+        ]
+      },
+      "order-api-route": {
+        "ClusterId": "order-cluster",
+        "Match": {
+          "Path": "/api/order/{**catch-all}"
+        },
+        "Transforms": [
+          { "PathPattern": "/api/v1/order/{**catch-all}" }
+        ]
+      },
+      "payment-api-route": {
+        "ClusterId": "payment-cluster",
+        "Match": {
+          "Path": "/api/payment/{**catch-all}"
+        },
+        "Transforms": [
+          { "PathPattern": "/api/v1/payment/{**catch-all}" }
+        ]
+      },
+      "discount-grpc-route": {
+        "ClusterId": "discount-grpc-cluster",
+        "Match": {
+          "Path": "/DiscountServiceProto/{**catch-all}"
+        },
+        "Transforms": [
+          { "PathPattern": "/DiscountServiceProto/{**catch-all}" }
+        ]
+      }
+    },
+    "Clusters": {
+      "product-cluster": {
+        "Destinations": {
+          "product-destination": {
+            "Address": "https://localhost:7182/"
+          }
+        }
+      },
+      "basket-cluster": {
+        "Destinations": {
+          "basket-destination": {
+            "Address": "https://localhost:7247/"
+          }
+        }
+      },
+      "order-cluster": {
+        "Destinations": {
+          "order-destination": {
+            "Address": "https://localhost:7092/"
+          }
+        }
+      },
+      "payment-cluster": {
+        "Destinations": {
+          "payment-destination": {
+            "Address": "https://localhost:7122/"
+          }
+        }
+      },
+      "discount-grpc-cluster": {
+        "HttpRequest": {
+          "Version": "2",
+          "VersionPolicy": "RequestVersionExact"
+        },
+        "Destinations": {
+          "discount-destination": {
+            "Address": "http://localhost:7134/"
+          }
+        }
+      }
+    }
+  }
+}
