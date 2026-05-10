@@ -8,6 +8,7 @@ using ProductService.Application.Interfaces;
 
 namespace ProductService.API.Controllers
 {
+    [Route("api/v1/[controller]")]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductManagementController : ControllerBase

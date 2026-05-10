@@ -5,6 +5,7 @@ using ProductService.Application.Interfaces;
 
 namespace ProductService.API.Controllers
 {
+    [Route("api/v1/[controller]")]
     [Route("api/[Controller]")]
     [ApiController]
     public class CategoryController : ControllerBase

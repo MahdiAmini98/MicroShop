@@ -1,5 +1,8 @@
 <Solution>
   <Folder Name="/Src/" />
+  <Folder Name="/Src/ApiGateways/">
+    <Project Path="MicroShop.ApiGateway/MicroShop.ApiGateway.csproj" Id="eb18d034-b9b9-47ef-8ab4-ef8ffc580514" />
+  </Folder>
   <Folder Name="/Src/BuildingBlocks/">
     <Project Path="Common.Core/Common.Core.csproj" Id="822ab246-d9c4-4d78-a3d8-b1a9a5427c59" />
     <Project Path="Common.EventBus/Common.EventBus.csproj" Id="2f335ef8-a52e-4550-b401-86aac1cc50c2" />

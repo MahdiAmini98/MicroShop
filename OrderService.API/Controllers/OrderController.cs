@@ -5,6 +5,7 @@ using OrderService.Application.Interfaces;
 
 namespace OrderService.API.Controllers
 {
+    [Route("api/v1/[controller]")]
     [Route("api/[controller]")]
     [ApiController]
     public class OrderController : ControllerBase
