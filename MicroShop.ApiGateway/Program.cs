@@ -138,6 +138,20 @@ builder.Services.AddCors(options =>
 });
 
 
+// ==========================================
+// 6. Redis Register
+// ==========================================
+
+builder.Services.AddRedisInfrastructure(
+    builder.Configuration);
+
+
+// ==========================================
+// 6. Rate Limiting
+// ==========================================
+builder.Services.AddDistributedRateLimiting();
+
+
 var app = builder.Build();
 
 // ==========================================
@@ -200,6 +214,9 @@ app.MapPost("/generate-token", (HttpContext context) =>
 });
 
 
+app.MapHealthChecks("/health");
+
+app.UseDistributedRateLimiting();
 
 // YARP Reverse Proxy (در انتها)
 app.MapReverseProxy();
