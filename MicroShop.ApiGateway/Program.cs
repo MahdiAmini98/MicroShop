@@ -139,7 +139,7 @@ builder.Services.AddCors(options =>
 
 
 // ==========================================
-// 6. Redis Register
+// 6.1. Redis Register
 // ==========================================
 
 builder.Services.AddRedisInfrastructure(
@@ -147,9 +147,18 @@ builder.Services.AddRedisInfrastructure(
 
 
 // ==========================================
-// 6. Rate Limiting
+// 6.2 Rate Limiting
 // ==========================================
 builder.Services.AddDistributedRateLimiting();
+
+
+
+// ==========================================
+// 6.3 Swagger Merge
+// ==========================================
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("anonymous", policy => policy.RequireAssertion(_ => true));
+builder.Services.AddSwaggerAggregation(builder.Configuration);
 
 
 var app = builder.Build();
@@ -217,6 +226,10 @@ app.MapPost("/generate-token", (HttpContext context) =>
 app.MapHealthChecks("/health");
 
 app.UseDistributedRateLimiting();
+
+app.UseSwaggerAggregation();
+
+
 
 // YARP Reverse Proxy (در انتها)
 app.MapReverseProxy();

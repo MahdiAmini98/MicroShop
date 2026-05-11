@@ -1,44 +1,33 @@
 {
   "ReverseProxy": {
     "Routes": {
-      "product-api-route": {
+      "product-swagger-route": {
         "ClusterId": "product-cluster",
-        "Match": {
-          "Path": "/api/product/{**catch-all}"
-        },
-        "Transforms": [
-          { "PathPattern": "/api/v1/product/{**catch-all}" }
-        ]
+        "AuthorizationPolicy": "anonymous",
+        "Match": { "Path": "/swagger-json/product/{**catch-all}" },
+        "Transforms": [ { "PathRemovePrefix": "/swagger-json/product" } ]
       },
-      "basket-api-route": {
+      "basket-swagger-route": {
         "ClusterId": "basket-cluster",
-        "Match": {
-          "Path": "/api/basket/{**catch-all}"
-        },
-        "Transforms": [
-          { "PathPattern": "/api/v1/basket/{**catch-all}" }
-        ]
+        "AuthorizationPolicy": "anonymous",
+        "Match": { "Path": "/swagger-json/basket/{**catch-all}" },
+        "Transforms": [ { "PathRemovePrefix": "/swagger-json/basket" } ]
       },
-      "order-api-route": {
+      "order-swagger-route": {
         "ClusterId": "order-cluster",
-        "Match": {
-          "Path": "/api/order/{**catch-all}"
-        },
-        "Transforms": [
-          { "PathPattern": "/api/v1/order/{**catch-all}" }
-        ]
+        "AuthorizationPolicy": "anonymous",
+        "Match": { "Path": "/swagger-json/order/{**catch-all}" },
+        "Transforms": [ { "PathRemovePrefix": "/swagger-json/order" } ]
       },
-      "payment-api-route": {
+      "payment-swagger-route": {
         "ClusterId": "payment-cluster",
-        "Match": {
-          "Path": "/api/payment/{**catch-all}"
-        },
-        "Transforms": [
-          { "PathPattern": "/api/v1/payment/{**catch-all}" }
-        ]
+        "AuthorizationPolicy": "anonymous",
+        "Match": { "Path": "/swagger-json/payment/{**catch-all}" },
+        "Transforms": [ { "PathRemovePrefix": "/swagger-json/payment" } ]
       },
       "discount-grpc-route": {
         "ClusterId": "discount-grpc-cluster",
+        "AuthorizationPolicy": "anonymous",
         "Match": {
           "Path": "/DiscountServiceProto/{**catch-all}"
         },
