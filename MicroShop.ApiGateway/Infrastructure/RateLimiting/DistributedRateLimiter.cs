@@ -28,62 +28,58 @@ public sealed class DistributedRateLimiter
 {
     private readonly IDatabase _redis;
     private readonly RateLimitOptions _options;
-    private const string _rateLimitLuaScript = @"
-    -- KEYS[1]: کلید محدودسازی (مثلاً ip:127.0.0.1)
-    -- ARGV[1]: حداکثر ظرفیت سطل (PermitLimit)
-    -- ARGV[2]: تعداد توکن شارژ در هر دوره (TokensPerPeriod)
-    -- ARGV[3]: مدت زمان دوره شارژ به ثانیه (ReplenishmentPeriodSeconds)
-    -- ARGV[4]: زمان فعلی سرور به فرمت Unix Timestamp
+    private const string _rateLimitLuaScript = """
+local key = KEYS[1]
 
-    local key = KEYS[1]
-    local tokenLimit = tonumber(ARGV[1])
-    local refillRate = tonumber(ARGV[2])
-    local refillPeriod = tonumber(ARGV[3])
-    local currentTime = tonumber(ARGV[4])
+local tokenLimit = tonumber(ARGV[1])
+local refillRate = tonumber(ARGV[2])
+local refillPeriod = tonumber(ARGV[3])
+local currentTime = tonumber(ARGV[4])
 
-    -- خواندن اطلاعات فعلی از هش‌مپ ردیس
-    -- HMGET: دریافت مقادیر موجودی توکن و زمان آخرین شارژ
-    local bucket = redis.call('HMGET', key, 'tokens', 'last_refill')
-    local tokens = tonumber(bucket[1])
-    local lastRefill = tonumber(bucket[2])
+local bucket = redis.call('HMGET', key, 'tokens', 'last_refill')
 
-    -- اگر بار اول است، سطل را پر کن
-    if tokens == nil then
-        tokens = tokenLimit
-        lastRefill = lastRefill + (math.floor(elapsed / refillPeriod) * refillPeriod)
-    end
+local tokens = tonumber(bucket[1])
+local lastRefill = tonumber(bucket[2])
 
-    -- محاسبه زمان سپری شده از آخرین شارژ
-    local elapsed = math.max(0, currentTime - lastRefill)
-    
-    -- محاسبه تعداد توکن‌های جدید که باید اضافه شوند
-    local refill = math.floor(elapsed / refillPeriod) * refillRate
-    
-    -- اضافه کردن توکن‌ها (اما نه بیشتر از سقف مجاز)
-    tokens = math.min(tokenLimit, tokens + refill)
+if tokens == nil then
+    tokens = tokenLimit
+    lastRefill = currentTime
+end
 
-    -- اگر توکنی اضافه شد، زمان آخرین شارژ را بروزرسانی کن
-    if refill > 0 then
-        lastRefill = lastRefill + (math.floor(elapsed / refillPeriod) * refillPeriod)
-    end
+local elapsedTime = math.max(0, currentTime - lastRefill)
 
-    -- بررسی اینکه آیا توکنی برای مصرف وجود دارد؟
-    if tokens <= 0 then
-        return { 0, 0 } -- اجازه عبور نده، موجودی صفر
-    end
+local refillTokens =
+    math.floor(elapsedTime / refillPeriod) * refillRate
 
-    -- کم کردن یک توکن برای درخواست فعلی
-    tokens = tokens - 1
+tokens = math.min(tokenLimit, tokens + refillTokens)
 
-    -- ذخیره مقادیر جدید در ردیس
-    redis.call('HMSET', key, 'tokens', tokens, 'last_refill', lastRefill)
-    
-    -- تنظیم زمان انقضا برای کلید جهت جلوگیری از پر شدن حافظه ردیس
-    -- کلید دو برابر زمان شارژ زنده می‌ماند
-    redis.call('EXPIRE', key, refillPeriod * 2)
+if refillTokens > 0 then
+    lastRefill = currentTime
+end
 
-    return { 1, tokens } -- اجازه عبور صادر شد (1) و مقدار باقی‌مانده برگشت داده شد
-";
+if tokens <= 0 then
+    return {0, tokens}
+end
+
+tokens = tokens - 1
+
+redis.call(
+    'HMSET',
+    key,
+    'tokens',
+    tokens,
+    'last_refill',
+    lastRefill
+)
+
+redis.call(
+    'EXPIRE',
+    key,
+    refillPeriod * 2
+)
+
+return {1, tokens}
+""";
     public DistributedRateLimiter(
         IRedisConnectionProvider redisProvider,
         IOptions<RateLimitOptions> options)

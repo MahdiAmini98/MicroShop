@@ -45,49 +45,29 @@
 
         public bool Enabled { get; init; } = true;
 
-        /// <summary>
-        /// Map از claim type به header name
-        /// claim هایی که اینجا نیستن، forward نمی‌شن
-        /// </summary>
-        public Dictionary<string, string> Mappings { get; init; } = new()
-        {
-            // JWT Standard Claims
-            ["sub"] = "X-User-Id",
-            ["name"] = "X-User-Name",
-            ["email"] = "X-User-Email",
-            ["preferred_username"] = "X-User-Username",
+        public Dictionary<string, string> Mappings { get; set; } = new();
 
-            // ASP.NET Core ClaimTypes
-            ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] = "X-User-Id",
-            ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] = "X-User-Name",
-            ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] = "X-User-Email"
-        };
-
-        /// <summary>
-        /// Claim type هایی که به عنوان Role جمع‌آوری می‌شن
-        /// همه مقادیرشون comma-separated در یه header فرستاده می‌شه
-        /// </summary>
-        public string[] RoleClaimTypes { get; init; } =
+        public string[] RoleClaimTypes { get; set; } =
         [
             "role",
         "roles",
         "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
         ];
 
-        /// <summary>
-        /// Header name که roles توش فرستاده می‌شه
-        /// </summary>
         public string RolesHeaderName { get; init; } = "X-User-Roles";
 
-        /// <summary>
-        /// Claim هایی که نباید forward بشن
-        /// HashSet در runtime ساخته می‌شه — O(1) lookup
-        /// </summary>
-        public string[] ExcludedClaims { get; init; } =
+        public string[] ExcludedClaims { get; set; } =
         [
-            "iat", "exp", "nbf", "aud", "iss",
-        "password", "refresh_token",
-        "nonce", "at_hash", "c_hash"
+            "iat",
+        "exp",
+        "nbf",
+        "aud",
+        "iss",
+        "password",
+        "refresh_token",
+        "nonce",
+        "at_hash",
+        "c_hash"
         ];
     }
 }

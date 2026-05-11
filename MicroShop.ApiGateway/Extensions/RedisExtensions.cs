@@ -10,12 +10,7 @@ namespace MicroShop.ApiGateway.Extensions
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            services
-                .AddOptions<RedisCacheOptions>()
-                .Bind(configuration.GetSection(
-                    RedisCacheOptions.SectionName))
-                .ValidateDataAnnotations()
-                .ValidateOnStart();
+            
 
             var options = configuration
                 .GetSection(RedisCacheOptions.SectionName)

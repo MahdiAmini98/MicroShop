@@ -3,31 +3,31 @@
     "Routes": {
       "product-swagger-route": {
         "ClusterId": "product-cluster",
-        "AuthorizationPolicy": "anonymous",
+        "AuthorizationPolicy": "AllowAnonymous",
         "Match": { "Path": "/swagger-json/product/{**catch-all}" },
         "Transforms": [ { "PathRemovePrefix": "/swagger-json/product" } ]
       },
       "basket-swagger-route": {
         "ClusterId": "basket-cluster",
-        "AuthorizationPolicy": "anonymous",
+        "AuthorizationPolicy": "AllowAnonymous",
         "Match": { "Path": "/swagger-json/basket/{**catch-all}" },
         "Transforms": [ { "PathRemovePrefix": "/swagger-json/basket" } ]
       },
       "order-swagger-route": {
         "ClusterId": "order-cluster",
-        "AuthorizationPolicy": "anonymous",
+        "AuthorizationPolicy": "AllowAnonymous",
         "Match": { "Path": "/swagger-json/order/{**catch-all}" },
         "Transforms": [ { "PathRemovePrefix": "/swagger-json/order" } ]
       },
       "payment-swagger-route": {
         "ClusterId": "payment-cluster",
-        "AuthorizationPolicy": "anonymous",
+        "AuthorizationPolicy": "AllowAnonymous",
         "Match": { "Path": "/swagger-json/payment/{**catch-all}" },
         "Transforms": [ { "PathRemovePrefix": "/swagger-json/payment" } ]
       },
       "discount-grpc-route": {
         "ClusterId": "discount-grpc-cluster",
-        "AuthorizationPolicy": "anonymous",
+        "AuthorizationPolicy": "AllowAnonymous",
         "Match": {
           "Path": "/DiscountServiceProto/{**catch-all}"
         },

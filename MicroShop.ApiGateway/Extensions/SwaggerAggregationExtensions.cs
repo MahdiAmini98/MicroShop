@@ -11,16 +11,11 @@ public static class SwaggerAggregationExtensions
        this IServiceCollection services,
        IConfiguration configuration)
     {
+        services.AddEndpointsApiExplorer();
         // یکبار تنظیمات را بخوان
         var options = configuration
             .GetSection(SwaggerAggregationOptions.SectionName)
             .Get<SwaggerAggregationOptions>() ?? new();
-
-        services
-            .AddOptions<SwaggerAggregationOptions>()
-            .Bind(configuration.GetSection(SwaggerAggregationOptions.SectionName))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
 
         services.AddSingleton<ISwaggerEndpointService, SwaggerEndpointService>();
 
