@@ -14,12 +14,10 @@
             app.UseExceptionHandler();
             // Custom Middlewares
             app.UseRequestResponseLogging();
-            app.UseSecurityHeaders();
-            app.UseHttpsRedirection();
-            app.UseCors("GatewayPolicy");
-
-            // Routing & gRPC
+            app.UseHttpsRedirection(); 
             app.UseRouting();
+            app.UseSecurityHeaders();
+            app.UseCors("GatewayPolicy");
             app.UseGrpcWeb();
 
             // Security

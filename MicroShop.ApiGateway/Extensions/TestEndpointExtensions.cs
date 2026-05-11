@@ -21,9 +21,12 @@ namespace MicroShop.ApiGateway.Extensions
                     audience: "MicroShopServices",
                     claims: new[]
                     {
-                    new Claim(ClaimTypes.NameIdentifier, "test-user-123"),
-                    new Claim(ClaimTypes.Name, "Test User"),
-                    new Claim(ClaimTypes.Role, "Admin")
+                         new Claim("preferred_username", "testuser"),
+                         new Claim("nameidentifier", "test-user-123"),   
+                         new Claim("name", "Test User"),                
+                         new Claim("email", "test@microshop.com"),     
+                         new Claim("role", "Admin"),                   
+                         new Claim("sub", "12345"),
                     },
                     expires: DateTime.Now.AddHours(1),
                     signingCredentials: credentials);
