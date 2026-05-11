@@ -129,11 +129,13 @@ builder.Services.AddAuthorization();
 // ==========================================
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("GatewayPolicy", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("https://localhost:8000", "http://localhost:7000")
+               .AllowAnyOrigin()
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -180,15 +182,23 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseExceptionHandler();
-
 app.UseSecurityHeaders();
-
-// Middlewareهای عمومی
 app.UseHttpsRedirection();
-app.UseCors("AllowAll");
-// Authentication & Authorization (قبل از ReverseProxy)
+app.UseCors("GatewayPolicy");
+app.UseRouting(); 
+app.UseGrpcWeb();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseDistributedRateLimiting();
+app.UseSwaggerAggregation();
+app.MapReverseProxy();
+
+app.MapHealthChecks("/health").AllowAnonymous();
+
+
+
+
+
 
 // لاگ‌گیری درخواست‌ها (اختیاری)
 app.Use(async (context, next) =>
@@ -223,15 +233,9 @@ app.MapPost("/generate-token", (HttpContext context) =>
 });
 
 
-app.MapHealthChecks("/health");
-
-app.UseDistributedRateLimiting();
-
-app.UseSwaggerAggregation();
 
 
 
-// YARP Reverse Proxy (در انتها)
-app.MapReverseProxy();
+
 
 app.Run();

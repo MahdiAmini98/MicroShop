@@ -32,7 +32,7 @@
           "Path": "/DiscountServiceProto/{**catch-all}"
         },
         "Transforms": [
-          { "PathPattern": "/DiscountServiceProto/{**catch-all}" }
+          { "PathRemovePrefix": "/DiscountServiceProto" }
         ]
       }
     },
