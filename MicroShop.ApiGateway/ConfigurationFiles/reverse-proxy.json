@@ -41,42 +41,42 @@
       // ==========================================
       "product-api-route": {
         "ClusterId": "product-cluster",
-        "AuthorizationPolicy": "anonymous",
+        "AuthorizationPolicy": "AllowAnonymous",
         "Match": {
           "Path": "/api/product/{**catch-all}"
         },
         "Transforms": [
-          { "PathPattern": "/api/v1/product/{**catch-all}" }
+          { "PathRemovePrefix": "/swagger-json/product" }
         ]
       },
       "basket-api-route": {
         "ClusterId": "basket-cluster",
-        "AuthorizationPolicy": "anonymous",
+        "AuthorizationPolicy": "AllowAnonymous",
         "Match": {
           "Path": "/api/basket/{**catch-all}"
         },
         "Transforms": [
-          { "PathPattern": "/api/v1/baskets/{**catch-all}" }
+          { "PathRemovePrefix": "/swagger-json/basket" }
         ]
       },
       "order-api-route": {
         "ClusterId": "order-cluster",
-        "AuthorizationPolicy": "anonymous",
+        "AuthorizationPolicy": "AllowAnonymous",
         "Match": {
           "Path": "/api/order/{**catch-all}"
         },
         "Transforms": [
-          { "PathPattern": "/api/v1/orders/{**catch-all}" }
+          { "PathRemovePrefix": "/swagger-json/order" }
         ]
       },
       "payment-api-route": {
         "ClusterId": "payment-cluster",
-        "AuthorizationPolicy": "anonymous",
+        "AuthorizationPolicy": "AllowAnonymous",
         "Match": {
           "Path": "/api/payment/{**catch-all}"
         },
         "Transforms": [
-          { "PathPattern": "/api/v1/payments/{**catch-all}" }
+          { "PathRemovePrefix": "/swagger-json/payment" }
         ]
       }
     },
