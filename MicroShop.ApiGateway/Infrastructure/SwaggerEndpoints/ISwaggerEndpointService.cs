@@ -2,7 +2,7 @@
 {
     public interface ISwaggerEndpointService
     {
-        IReadOnlyList<SwaggerEndpointInfo> GetEndpoints();
+        IEnumerable<SwaggerEndpointInfo> GetEndpoints();
     }
     public sealed record SwaggerEndpointInfo(string Url, string Name);
 }

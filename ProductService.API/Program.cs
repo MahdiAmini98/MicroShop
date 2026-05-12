@@ -1,9 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi;
+﻿using Common.EventBus.Extensions;
+using Microsoft.EntityFrameworkCore;
 using ProductService.Application.Interfaces;
 using ProductService.Application.Services;
 using ProductService.Infrastructure.Context;
-using Common.EventBus.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,29 +20,56 @@ builder.Services.AddTransient<IProductService, ProductService.Application.Servic
 builder.Services.AddRabbitMQService(builder.Configuration);
 #endregion
 
-builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+#region API
 
-#region Swagger
-builder.Services.AddEndpointsApiExplorer();  
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddControllers();
+
+builder.Services.AddEndpointsApiExplorer();
+
+#endregion
+
+#region OpenAPI + Swagger
+
+builder.Services.AddOpenApi(options =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Servers.Clear();
+
+        document.Servers.Add(new()
+        {
+            Url = "https://localhost:5000/product"
+        });
+
+        return Task.CompletedTask;
+    });
+});
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new()
     {
         Title = "Product Service API",
         Version = "v1",
-        Description = "API for managing products and categories"
+        Description = "Product microservice endpoints"
     });
 });
+
 #endregion
+
 var app = builder.Build();
+
+#region Middleware Pipeline
+
 if (app.Environment.IsDevelopment())
 {
-    //swagger
+    app.MapOpenApi();
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    app.UseSwaggerUI(options =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Product Service API v1");
+        options.SwaggerEndpoint(
+            "/openapi/v1.json",
+            "ProductService");
     });
 }
 
@@ -52,5 +78,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+#endregion
 
 app.Run();

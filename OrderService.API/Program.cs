@@ -22,22 +22,6 @@ builder.Services.AddTransient<IOrderService, OrderService.Application.Services.O
 builder.Services.AddTransient<IProductService, OrderService.Application.Services.ProductService>();
 #endregion
 
-builder.Services.AddControllers();
-builder.Services.AddOpenApi();
-
-#region Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Order Service API",
-        Version = "v1",
-        Description = "API for managing Orders and OrderLines"
-    });
-});
-#endregion
-
 #region RabitMQ
 builder.Services.AddRabbitMQService(builder.Configuration);
 
@@ -49,17 +33,51 @@ builder.Services.AddRabbitMQConsumer<PaymentIsDoneMessage, PaymentIsDoneHandler>
 
 builder.Services.AddRabitMQFanoutConsumer<ProductUpdatedNameEvent, OrderProductUpdatedNameHandler>(ExchangeNames.ProductUpdatedNameEvent, QueueNames.OrderProductUpdatedName);
 #endregion
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+
+
+#region Api
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Servers.Clear();
+
+        document.Servers.Add(new()
+        {
+            Url = "https://localhost:5000/order"
+        });
+
+        return Task.CompletedTask;
+    });
+});
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Order Service API",
+        Version = "v1",
+        Description = "Order microservice endpoints"
+    });
+});
+#endregion
+
+
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    //swagger
+    app.MapOpenApi();
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    app.UseSwaggerUI(options =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Product Service API v1");
+        options.SwaggerEndpoint(
+          "/openapi/v1.json",
+          "OrderService");
     });
 }
 

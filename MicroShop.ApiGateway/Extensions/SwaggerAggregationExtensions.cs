@@ -1,68 +1,44 @@
 ﻿using MicroShop.ApiGateway.Configurations;
 using MicroShop.ApiGateway.Infrastructure.SwaggerEndpoints;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace MicroShop.ApiGateway.Extensions;
 
 public static class SwaggerAggregationExtensions
 {
     public static IServiceCollection AddSwaggerAggregation(
-       this IServiceCollection services,
-       IConfiguration configuration)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        services.AddEndpointsApiExplorer();
-        // یکبار تنظیمات را بخوان
         var options = configuration
             .GetSection(SwaggerAggregationOptions.SectionName)
-            .Get<SwaggerAggregationOptions>() ?? new();
+            .Get<SwaggerAggregationOptions>() ?? new SwaggerAggregationOptions();
 
         services.AddSingleton<ISwaggerEndpointService, SwaggerEndpointService>();
 
         if (!options.Enabled)
             return services;
 
-        services.AddSwaggerGen(c =>
+        services.AddEndpointsApiExplorer();
+
+        services.AddSwaggerGen(swagger =>
         {
-            c.SwaggerDoc(options.Version, new OpenApiInfo
+            swagger.SwaggerDoc(options.Version, new OpenApiInfo
             {
                 Title = options.Title,
                 Version = options.Version,
-                Description = options.Description,
-                Contact = new OpenApiContact { Name = "MicroShop Team" }
+                Description = options.Description
             });
 
-            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                Scheme = "bearer",
-                BearerFormat = "JWT",
-                In = ParameterLocation.Header,
-                Description = "Enter your JWT token"
-            });
-
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
-            {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    }
-                },
-                Array.Empty<string>()
-            }
-        });
+            ConfigureJwtSecurity(swagger);
         });
 
         return services;
     }
 
     public static IApplicationBuilder UseSwaggerAggregation(
-    this IApplicationBuilder app)
+        this IApplicationBuilder app)
     {
         var options = app.ApplicationServices
             .GetRequiredService<IOptions<SwaggerAggregationOptions>>()
@@ -73,39 +49,55 @@ public static class SwaggerAggregationExtensions
 
         app.UseSwagger();
 
-        app.UseSwaggerUI(c =>
+        app.UseSwaggerUI(swagger =>
         {
-            c.RoutePrefix = options.RoutePrefix;
+            swagger.RoutePrefix = options.RoutePrefix;
 
-            c.DocumentTitle = options.Title;
+            swagger.SwaggerEndpoint(
+                $"/swagger/{options.Version}/swagger.json",
+                "ApiGateway");
 
-            c.DisplayRequestDuration();
-
-            c.EnableDeepLinking();
-
-            c.EnableFilter();
-
-            c.EnableTryItOutByDefault();
-
-            c.DefaultModelsExpandDepth(-1);
-
-            // Gateway خودش
-            c.SwaggerEndpoint(
-                "/swagger/v1/swagger.json",
-                "API Gateway");
-
-            // سرویس‌های upstream
             var endpointService = app.ApplicationServices
                 .GetRequiredService<ISwaggerEndpointService>();
 
             foreach (var endpoint in endpointService.GetEndpoints())
             {
-                c.SwaggerEndpoint(
+                swagger.SwaggerEndpoint(
                     endpoint.Url,
                     endpoint.Name);
             }
+
+            swagger.DisplayRequestDuration();
+
+            swagger.EnableDeepLinking();
+
+            swagger.EnableFilter();
+
+            swagger.DocExpansion(
+                Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
         });
 
         return app;
+    }
+
+    private static void ConfigureJwtSecurity(
+        Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions swagger)
+    {
+        var securityScheme = new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Enter your JWT token"
+        };
+
+        swagger.AddSecurityDefinition("Bearer", securityScheme);     
+        var schemeReference = new OpenApiSecuritySchemeReference("Bearer", null, null);
+
+        var requirement = new OpenApiSecurityRequirement();
+        requirement.Add(schemeReference, new List<string>());
+        swagger.AddSecurityRequirement((doc) => requirement);
     }
 }

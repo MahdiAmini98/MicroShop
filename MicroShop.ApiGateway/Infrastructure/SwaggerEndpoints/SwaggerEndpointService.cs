@@ -1,57 +1,51 @@
-﻿using MicroShop.ApiGateway.Configurations;
-using Microsoft.Extensions.Options;
-using Yarp.ReverseProxy.Configuration;
+﻿using Yarp.ReverseProxy.Configuration;
 
 namespace MicroShop.ApiGateway.Infrastructure.SwaggerEndpoints
 {
-    public sealed class SwaggerEndpointService(
-        IProxyConfigProvider proxyConfigProvider,
-        IOptions<SwaggerAggregationOptions> options) : ISwaggerEndpointService
+    public sealed class SwaggerEndpointService
+        : ISwaggerEndpointService
     {
-        private readonly SwaggerAggregationOptions _options = options.Value;
+        private const string SwaggerPrefix = "/swagger-json/";
 
-        public IReadOnlyList<SwaggerEndpointInfo> GetEndpoints()
+        private readonly IProxyConfigProvider _proxyConfigProvider;
+
+        public SwaggerEndpointService(IProxyConfigProvider proxyConfigProvider)
         {
-            var config = proxyConfigProvider.GetConfig();
-
-            return config.Routes
-                .Where(r => r.Match?.Path?.StartsWith(
-                    _options.SwaggerJsonPrefix,
-                    StringComparison.OrdinalIgnoreCase) == true)
-                .Select(BuildEndpointInfo)
-                .OfType<SwaggerEndpointInfo>() // null ها رو حذف می‌کنه — جایگزین Where+Select
-                .OrderBy(e => e.Name)
-                .ToList()
-                .AsReadOnly();
+            _proxyConfigProvider = proxyConfigProvider;
         }
 
-        private SwaggerEndpointInfo? BuildEndpointInfo(RouteConfig route)
+        public IEnumerable<SwaggerEndpointInfo> GetEndpoints()
         {
-            var path = route.Match?.Path;
-            if (string.IsNullOrEmpty(path))
-                return null;
+            var routes = _proxyConfigProvider.GetConfig().Routes;
+            return routes
+                .Where(IsSwaggerRoute)
+                .Select(CreateSwaggerEndpoint)
+                .DistinctBy(x => x.Url)
+                .OrderBy(x => x.Name);
+        }
 
-            // مثال path: "/swagger-json/product/swagger/v1/swagger.json"
-            // SwaggerJsonPrefix: "/swagger-json"
-            // بعد از حذف prefix: "/product/swagger/v1/swagger.json"
-            var afterPrefix = path[_options.SwaggerJsonPrefix.Length..]
-                .TrimStart('/');
+        private static bool IsSwaggerRoute(RouteConfig route)
+        {
+            return route.Match.Path?.StartsWith(
+                SwaggerPrefix,
+                StringComparison.OrdinalIgnoreCase) == true;
+        }
 
-            // segments[0] = "product"
-            var segments = afterPrefix.Split('/',
-                StringSplitOptions.RemoveEmptyEntries);
+        private static SwaggerEndpointInfo CreateSwaggerEndpoint(
+            RouteConfig route)
+        {
+            var serviceKey = route.RouteId
+                .Replace("-swagger-route", "");
 
-            if (segments.Length == 0)
-                return null;
+            var displayName =
+                $"{char.ToUpper(serviceKey[0])}{serviceKey[1..]}Service";
 
-            var serviceName = segments[0];
-
-            // ✅ ToTitleCase بدون extension method
-            var displayName = char.ToUpper(serviceName[0]) + serviceName[1..].ToLower();
+            var swaggerUrl = route.Match.Path!
+                .Replace("{**catch-all}", "openapi/v1.json");
 
             return new SwaggerEndpointInfo(
-                Url: path,
-                Name: $"{displayName} Service");
+                swaggerUrl,
+                displayName);
         }
     }
 }

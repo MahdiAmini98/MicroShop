@@ -43,17 +43,31 @@ builder.Services.AddRabbitMQService(builder.Configuration);
 builder.Services.AddRabitMQFanoutConsumer<ProductUpdatedNameEvent, BasketProductUpdatedNameHandler>(ExchangeNames.ProductUpdatedNameEvent, QueueNames.BasketProductUpdatedName);
 #endregion
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
-
-#region Swagger
 builder.Services.AddEndpointsApiExplorer();
+
+#region Api
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Servers.Clear();
+
+        document.Servers.Add(new()
+        {
+            Url = "https://localhost:5000/basket"
+        });
+
+        return Task.CompletedTask;
+    });
+}); 
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "Basket Service API",
         Version = "v1",
-        Description = "API for managing Baskets"
+        Description = "Basket microservice endpoints"
     });
 });
 #endregion
@@ -63,11 +77,13 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    //swagger
+    app.MapOpenApi();
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    app.UseSwaggerUI(options =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Product Service API v1");
+        options.SwaggerEndpoint(
+           "/openapi/v1.json",
+           "BasketService");
     });
 }
 
